@@ -1,0 +1,180 @@
+import React from 'react';
+import { Link } from 'react-router-dom';
+import DashboardCard from '../components/DashboardCard';
+import ProgressBar from '../components/ProgressBar';
+import { userProgress, todayTask, roadmap } from '../data/dummyData';
+
+const Dashboard = () => {
+  const progressPercentage = Math.round((userProgress.completedDays / userProgress.totalDays) * 100);
+
+  return (
+    <div className="max-w-7xl mx-auto">
+      {/* Header */}
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">Dashboard</h1>
+        <p className="text-gray-600">Welcome back! Here's your learning overview.</p>
+      </div>
+
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <DashboardCard
+          title="Overall Progress"
+          value={`${progressPercentage}%`}
+          icon="🎯"
+          gradient="from-indigo-500 to-violet-500"
+          subtitle={`${userProgress.completedDays} of ${userProgress.totalDays} days`}
+        />
+        <DashboardCard
+          title="Current Streak"
+          value={`${userProgress.currentStreak} days`}
+          icon="🔥"
+          gradient="from-orange-500 to-red-500"
+          subtitle="Keep it going!"
+        />
+        <DashboardCard
+          title="Learning Hours"
+          value={`${userProgress.learningHours}h`}
+          icon="⏰"
+          gradient="from-cyan-500 to-blue-500"
+          subtitle="This week"
+        />
+        <DashboardCard
+          title="Active Goals"
+          value={userProgress.activeGoals}
+          icon="✨"
+          gradient="from-green-500 to-emerald-500"
+          subtitle="In progress"
+        />
+      </div>
+
+      {/* Main Content Grid */}
+      <div className="grid lg:grid-cols-3 gap-8">
+        {/* Today's Task */}
+        <div className="lg:col-span-2">
+          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 mb-8">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-bold text-gray-900">📚 Today's Task</h2>
+              <span className="bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full text-sm font-semibold">
+                Day {todayTask.day}
+              </span>
+            </div>
+            
+            <div className="bg-gradient-to-br from-indigo-50 to-violet-50 rounded-lg p-6 border border-indigo-100">
+              <h3 className="text-xl font-bold text-gray-900 mb-3">{todayTask.topic}</h3>
+              <p className="text-gray-700 mb-4">{todayTask.description}</p>
+              
+              <div className="flex items-center gap-2 text-gray-600 mb-4">
+                <span className="text-lg">⏱️</span>
+                <span className="font-medium">{todayTask.duration}</span>
+              </div>
+
+              <div className="mb-4">
+                <h4 className="font-semibold text-gray-900 mb-2">Resources:</h4>
+                <ul className="space-y-2">
+                  {todayTask.resources.map((resource, index) => (
+                    <li key={index} className="flex items-start gap-2 text-gray-700">
+                      <span className="text-indigo-600 mt-1">•</span>
+                      <span>{resource}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <button className="w-full bg-gradient-to-r from-indigo-600 to-violet-600 text-white py-3 rounded-lg font-semibold hover:shadow-lg transition-all">
+                Start Learning →
+              </button>
+            </div>
+          </div>
+
+          {/* Weekly Progress */}
+          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+            <h2 className="text-xl font-bold text-gray-900 mb-4">📊 Weekly Activity</h2>
+            <div className="grid grid-cols-7 gap-2">
+              {userProgress.weeklyProgress.map((day, index) => (
+                <div key={index} className="text-center">
+                  <div className="text-xs text-gray-600 mb-2">{day.day}</div>
+                  <div
+                    className={`h-20 rounded-lg flex items-center justify-center ${
+                      day.completed
+                        ? 'bg-gradient-to-br from-green-500 to-emerald-500 text-white'
+                        : 'bg-gray-100 text-gray-400'
+                    }`}
+                  >
+                    <div>
+                      {day.completed ? (
+                        <>
+                          <div className="text-xl mb-1">✓</div>
+                          <div className="text-xs font-semibold">{day.hours}h</div>
+                        </>
+                      ) : (
+                        <div className="text-xl">-</div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Sidebar */}
+        <div className="lg:col-span-1 space-y-6">
+          {/* Progress Overview */}
+          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+            <h3 className="font-bold text-gray-900 mb-4">Progress Overview</h3>
+            <ProgressBar progress={progressPercentage} label="Course Completion" />
+            
+            <div className="mt-6 space-y-3">
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-600">Completed</span>
+                <span className="font-semibold text-green-600">{userProgress.completedDays} days</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-600">Remaining</span>
+                <span className="font-semibold text-gray-900">
+                  {userProgress.totalDays - userProgress.completedDays} days
+                </span>
+              </div>
+            </div>
+
+            <Link
+              to="/dashboard/roadmap"
+              className="block mt-4 text-center bg-indigo-50 text-indigo-600 py-2 rounded-lg font-medium hover:bg-indigo-100 transition-colors"
+            >
+              View Full Roadmap →
+            </Link>
+          </div>
+
+          {/* Quick Actions */}
+          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+            <h3 className="font-bold text-gray-900 mb-4">Quick Actions</h3>
+            <div className="space-y-3">
+              <Link
+                to="/dashboard/create-plan"
+                className="block bg-gradient-to-r from-indigo-600 to-violet-600 text-white py-3 px-4 rounded-lg font-medium hover:shadow-lg transition-all text-center"
+              >
+                + Create New Plan
+              </Link>
+              <Link
+                to="/dashboard/analytics"
+                className="block bg-gray-100 text-gray-700 py-3 px-4 rounded-lg font-medium hover:bg-gray-200 transition-colors text-center"
+              >
+                📈 View Analytics
+              </Link>
+            </div>
+          </div>
+
+          {/* Motivation */}
+          <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl p-6 border border-amber-200">
+            <div className="text-4xl mb-3 text-center">🌟</div>
+            <p className="text-sm text-gray-700 text-center italic">
+              "The expert in anything was once a beginner. Keep going!"
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Dashboard;

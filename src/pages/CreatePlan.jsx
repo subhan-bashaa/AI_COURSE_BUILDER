@@ -1,32 +1,75 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import GoalForm from '../components/GoalForm';
+import { generateRoadmap } from '../utils/aiGenerator';
+import { goalsAPI } from '../services/api';
 
 const CreatePlan = () => {
   const navigate = useNavigate();
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedPlan, setGeneratedPlan] = useState(null);
+  const [error, setError] = useState('');
 
   const handleFormSubmit = (formData) => {
     setIsGenerating(true);
+    setError('');
     
-    // Simulate AI generation
+    // Simulate AI generation with delay for UX
     setTimeout(() => {
+      const roadmap = generateRoadmap(formData);
+      
       setGeneratedPlan({
         goal: formData.goal,
         level: formData.currentLevel,
         timePerDay: formData.timePerDay,
         deadline: formData.deadline,
-        totalDays: 15,
-        estimatedHours: 30
+        totalDays: roadmap.length,
+        estimatedHours: roadmap.length * parseFloat(formData.timePerDay),
+        roadmap: roadmap
       });
       setIsGenerating(false);
     }, 2000);
   };
 
-  const handleSavePlan = () => {
-    // In a real app, save to backend
-    navigate('/dashboard/roadmap');
+  const handleSavePlan = async () => {
+    if (!generatedPlan) return;
+    
+    setIsGenerating(true);
+    setError('');
+    
+    try {
+      // Save goal to backend
+      const response = await goalsAPI.createGoal({
+        title: generatedPlan.goal,
+        level: generatedPlan.level,
+        time_per_day: parseInt(generatedPlan.timePerDay),
+        deadline: generatedPlan.deadline || null,
+        description: `Learning plan for ${generatedPlan.goal}`,
+        generate_ai: true
+      });
+      
+      const goalData = response.data.goal;
+      
+      // Store goal ID and data locally for quick access
+      localStorage.setItem('currentGoalId', goalData.id);
+      localStorage.setItem('userRoadmap', JSON.stringify(generatedPlan.roadmap));
+      localStorage.setItem('userGoal', JSON.stringify({
+        id: goalData.id,
+        title: generatedPlan.goal,
+        currentLevel: generatedPlan.level,
+        timePerDay: generatedPlan.timePerDay,
+        deadline: generatedPlan.deadline,
+        progress: 0,
+        status: 'active'
+      }));
+      
+      navigate('/dashboard/roadmap');
+    } catch (err) {
+      console.error('Error saving plan:', err);
+      const errorMessage = err.response?.data?.error || err.message || 'Failed to save plan. Please try again.';
+      setError(errorMessage);
+      setIsGenerating(false);
+    }
   };
 
   return (
@@ -36,6 +79,13 @@ const CreatePlan = () => {
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Create Learning Plan</h1>
         <p className="text-gray-600">Tell us about your goals and we'll generate a personalized roadmap.</p>
       </div>
+
+      {/* Error Message */}
+      {error && (
+        <div className="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+          {error}
+        </div>
+      )}
 
       {/* AI Badge */}
       <div className="mb-6">

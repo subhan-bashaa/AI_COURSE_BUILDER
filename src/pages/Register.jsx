@@ -1,31 +1,54 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import ParticleBackground from '../components/ParticleBackground';
+import { useAuth } from '../contexts/AuthContext';
 
 const Register = () => {
   const navigate = useNavigate();
+  const { register } = useAuth();
   const [formData, setFormData] = useState({
-    name: '',
+    username: '',
     email: '',
     password: '',
     confirmPassword: ''
   });
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
     });
+    setError('');
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Demo: Just navigate to create plan page
-    navigate('/dashboard/create-plan');
+    
+    if (formData.password !== formData.confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
+    
+    setLoading(true);
+    setError('');
+    
+    try {
+      await register(formData.username, formData.email, formData.password);
+      navigate('/dashboard/create-plan');
+    } catch (err) {
+      setError(err.message || 'Registration failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-violet-50 flex items-center justify-center px-4 py-12">
-      <div className="max-w-md w-full">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-violet-50 dark:from-gray-900 dark:via-gray-800 dark:to-indigo-900 flex items-center justify-center px-4 py-12 relative overflow-hidden transition-colors duration-200">
+      <ParticleBackground />
+      
+      <div className="max-w-md w-full relative z-10">
         {/* Logo */}
         <div className="text-center mb-8">
           <Link to="/" className="inline-flex items-center space-x-2 mb-4">
@@ -41,17 +64,23 @@ const Register = () => {
         {/* Register Form */}
         <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
           <form onSubmit={handleSubmit} className="space-y-5">
+            {error && (
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+                {error}
+              </div>
+            )}
+            
             <div>
-              <label htmlFor="name" className="block text-sm font-semibold text-gray-700 mb-2">
-                Full Name
+              <label htmlFor="username" className="block text-sm font-semibold text-gray-700 mb-2">
+                Username
               </label>
               <input
                 type="text"
-                id="name"
-                name="name"
-                value={formData.name}
+                id="username"
+                name="username"
+                value={formData.username}
                 onChange={handleChange}
-                placeholder="John Doe"
+                placeholder="johndoe"
                 className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
                 required
               />
@@ -115,9 +144,10 @@ const Register = () => {
 
             <button
               type="submit"
-              className="w-full bg-gradient-to-r from-indigo-600 to-violet-600 text-white py-3 rounded-lg font-semibold hover:shadow-lg hover:scale-[1.02] transition-all"
+              disabled={loading}
+              className="w-full bg-gradient-to-r from-indigo-600 to-violet-600 text-white py-3 rounded-lg font-semibold hover:shadow-lg hover:scale-[1.02] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Create Account
+              {loading ? 'Creating Account...' : 'Create Account'}
             </button>
           </form>
 
@@ -130,10 +160,10 @@ const Register = () => {
             </p>
           </div>
 
-          {/* Demo Note */}
-          <div className="mt-6 p-4 bg-amber-50 border border-amber-200 rounded-lg">
-            <p className="text-sm text-amber-800">
-              <strong>Demo mode:</strong> Fill in any details to continue.
+          {/* Info Note */}
+          <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <p className="text-sm text-blue-800">
+              <strong>Connected to Flask Backend</strong> - Your account will be saved securely.
             </p>
           </div>
         </div>

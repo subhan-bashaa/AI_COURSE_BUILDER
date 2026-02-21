@@ -1,7 +1,18 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
-const RoadmapCard = ({ day, topic, status, duration, onToggleStatus }) => {
+const RoadmapCard = ({ day, topic, status, duration, onToggleStatus, taskId }) => {
+  const navigate = useNavigate();
   const isDone = status === 'done';
+
+  const handleStartLearning = () => {
+    if (taskId) {
+      navigate(`/learn/${taskId}`);
+    } else {
+      // If no taskId (using dummy data), show alert
+      alert('Please create a learning plan first to access interactive lessons!');
+    }
+  };
 
   return (
     <div className={`bg-white rounded-lg shadow-sm hover:shadow-md transition-all p-6 border-l-4 ${
@@ -26,16 +37,24 @@ const RoadmapCard = ({ day, topic, status, duration, onToggleStatus }) => {
             ⏱️ Duration: <span className="font-medium">{duration}</span>
           </p>
         </div>
-        <button
-          onClick={() => onToggleStatus(day)}
-          className={`ml-4 px-4 py-2 rounded-lg font-medium transition-colors ${
-            isDone
-              ? 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              : 'bg-indigo-600 text-white hover:bg-indigo-700'
-          }`}
-        >
-          {isDone ? 'Undo' : 'Complete'}
-        </button>
+        <div className="ml-4 flex flex-col gap-2">
+          <button
+            onClick={handleStartLearning}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
+          >
+            📚 Start Learning
+          </button>
+          <button
+            onClick={() => onToggleStatus(day)}
+            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+              isDone
+                ? 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                : 'bg-indigo-600 text-white hover:bg-indigo-700'
+            }`}
+          >
+            {isDone ? 'Undo' : 'Complete'}
+          </button>
+        </div>
       </div>
     </div>
   );

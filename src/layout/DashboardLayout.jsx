@@ -5,7 +5,7 @@ import Navbar from '../components/Navbar';
 
 const DashboardLayout = () => {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
       <Navbar />
       <div className="flex">
         <Sidebar />

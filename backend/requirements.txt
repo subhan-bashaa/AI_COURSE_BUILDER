@@ -1,0 +1,39 @@
+# SkillPilot AI Backend - Production Dependencies
+
+# Core Flask Framework
+Flask==3.0.0
+Flask-SQLAlchemy==3.1.1
+Flask-Migrate==4.0.5
+
+# JWT Authentication
+Flask-JWT-Extended==4.6.0
+
+# CORS
+Flask-CORS==4.0.0
+
+# Password Hashing
+Bcrypt==4.1.2
+werkzeug==3.0.0
+
+# Environment Variables
+python-decouple==3.8
+
+# AI Integration
+groq==0.4.2
+
+# Image Handling
+Pillow==10.0.0
+
+# Production WSGI Server
+gunicorn==21.2.0
+
+# Database - SQLite for development, PostgreSQL ready
+# For PostgreSQL support, install: psycopg2-binary==2.9.9
+
+# Utilities
+python-dotenv==1.0.0
+requests==2.31.0
+
+# Note: Using SQLite for development
+# For PostgreSQL production: psycopg2-binary dj-database-url
+

@@ -1,15 +1,17 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
+import ParticleBackground from '../components/ParticleBackground';
 
 const LandingPage = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-violet-50">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-violet-50 dark:from-gray-900 dark:via-gray-800 dark:to-indigo-900 transition-colors duration-200">
       <Navbar isLanding={true} />
       
       {/* Hero Section */}
-      <section className="relative pt-32 pb-20 px-4">
-        <div className="container mx-auto text-center max-w-5xl">
+      <section className="relative pt-32 pb-20 px-4 overflow-hidden min-h-screen">
+        <ParticleBackground />
+        <div className="container mx-auto text-center max-w-5xl relative" style={{ zIndex: 10 }}>
           <div className="inline-block mb-6">
             <span className="bg-indigo-100 text-indigo-700 px-4 py-2 rounded-full text-sm font-semibold">
               🚀 AI-Powered Learning

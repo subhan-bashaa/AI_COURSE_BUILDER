@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Connection Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-box {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        .result {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 4px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <h1>SkillPilot AI - API Connection Test</h1>
+    
+    <div class="test-box">
+        <h2>Test 1: Backend Health Check</h2>
+        <p>Tests if the backend is running and accessible</p>
+        <button onclick="testHealth()">Test Health Endpoint</button>
+        <div id="health-result"></div>
+    </div>
+
+    <div class="test-box">
+        <h2>Test 2: API Root</h2>
+        <p>Tests the main API endpoint</p>
+        <button onclick="testRoot()">Test API Root</button>
+        <div id="root-result"></div>
+    </div>
+
+    <div class="test-box">
+        <h2>Test 3: Registration Endpoint</h2>
+        <p>Tests if registration endpoint is accessible</p>
+        <button onclick="testRegister()">Test Registration</button>
+        <div id="register-result"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8000';
+
+        function showResult(elementId, message, isSuccess) {
+            const element = document.getElementById(elementId);
+            element.className = 'result ' + (isSuccess ? 'success' : 'error');
+            element.textContent = message;
+        }
+
+        async function testHealth() {
+            try {
+                const response = await fetch(`${API_BASE}/health`);
+                const data = await response.json();
+                showResult('health-result', 
+                    `✅ SUCCESS!\nStatus: ${response.status}\nResponse: ${JSON.stringify(data, null, 2)}`,
+                    true
+                );
+            } catch (error) {
+                showResult('health-result', 
+                    `❌ ERROR: ${error.message}\n\nThis means the frontend cannot reach the backend.\nPossible causes:\n1. Backend not running\n2. Wrong port\n3. CORS issue\n4. Network problem`,
+                    false
+                );
+            }
+        }
+
+        async function testRoot() {
+            try {
+                const response = await fetch(`${API_BASE}/`);
+                const data = await response.json();
+                showResult('root-result', 
+                    `✅ SUCCESS!\nStatus: ${response.status}\nResponse: ${JSON.stringify(data, null, 2)}`,
+                    true
+                );
+            } catch (error) {
+                showResult('root-result', 
+                    `❌ ERROR: ${error.message}`,
+                    false
+                );
+            }
+        }
+
+        async function testRegister() {
+            try {
+                const testUser = {
+                    username: 'testuser_' + Date.now(),
+                    email: `test${Date.now()}@example.com`,
+                    password: 'password123'
+                };
+
+                const response = await fetch(`${API_BASE}/api/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(testUser)
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showResult('register-result', 
+                        `✅ SUCCESS!\nStatus: ${response.status}\nUser created: ${testUser.username}\nToken received: ${data.access ? 'Yes' : 'No'}`,
+                        true
+                    );
+                } else {
+                    showResult('register-result', 
+                        `⚠️ API returned error (but connection works!)\nStatus: ${response.status}\nError: ${data.error || 'Unknown'}`,
+                        false
+                    );
+                }
+            } catch (error) {
+                showResult('register-result', 
+                    `❌ CONNECTION ERROR: ${error.message}\n\nThe browser cannot reach http://localhost:8000/api/register\n\nTroubleshooting:\n1. Make sure backend is running: cd backend && python app.py\n2. Check if port 8000 is in use\n3. Try hard refresh (Ctrl+Shift+R)\n4. Check browser console for CORS errors`,
+                    false
+                );
+            }
+        }
+
+        // Auto-run tests on page load
+        window.addEventListener('load', () => {
+            console.log('Running automatic API tests...');
+            setTimeout(testHealth, 500);
+        });
+    </script>
+</body>
+</html>
